@@ -13,4 +13,5 @@ HEADERS += mainwin.h \
 SOURCES += main.cpp mainwin.cpp
 
 FORMS += \
-    mainwin.ui
+    mainwin.ui \
+    tmedit.ui

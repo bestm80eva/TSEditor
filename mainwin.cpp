@@ -1,6 +1,7 @@
 #include "mainwin.h"
 #include "mlabel.h"
 #include "ui_mainwin.h"
+#include "ui_tmedit.h"
 
 #include <QtGui>
 
@@ -23,11 +24,16 @@ unsigned char tslCoLevs[32] = {
 	255,255,255,255,255,255,255,255
 };
 
+int tileMap[2][4096];
+
 Tile tiles[4096];
 Ui::MWin ui;
+Ui::TMEdit teui;
 palItem pal[256];
 
 MWin::MWin(QWidget *p):QMainWindow(p) {
+
+	tedit = new TMEdit(this);
 
 	ui.setupUi(this);
 
@@ -62,6 +68,59 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	connect(ui.actOpenPrj,SIGNAL(triggered()),this,SLOT(openPrj()));
 	connect(ui.actSavePrj,SIGNAL(triggered()),this,SLOT(savePrj()));
 
+	connect(ui.actTMEdit,SIGNAL(triggered()),tedit,SLOT(show()));
+}
+
+TMEdit::TMEdit(QWidget *p):QDialog(p) {
+	teui.setupUi(this);
+
+	teui.tileLine->type = ML_TILEROW;
+	teui.tilemap->type = ML_TILEMAP;
+	teui.tileShow->type = ML_TILESHOW;
+
+	teui.tilemap->xpos = 0;
+	teui.tilemap->ypos = 0;
+
+	connect(teui.tbLeft,SIGNAL(released()),this,SLOT(tileRowUp()));
+	connect(teui.tbRight,SIGNAL(released()),this,SLOT(tileRowDn()));
+}
+
+void TMEdit::tileRowUp() {
+	if (teui.tileLine->row == 0) return;
+	teui.tileLine->row--;
+	teui.tileLine->update();
+}
+
+void TMEdit::tileRowDn() {
+	if (teui.tileLine->row > 55) return;
+	teui.tileLine->row++;
+	teui.tileLine->update();
+}
+
+void TMEdit::keyPressEvent(QKeyEvent* ev) {
+	switch (ev->key()) {
+		case Qt::Key_W:
+			teui.tilemap->ypos--;
+			if (teui.tilemap->ypos < 0) teui.tilemap->ypos = 0;
+			teui.tilemap->update();
+			break;
+		case Qt::Key_S:
+			teui.tilemap->ypos++;
+			if (teui.tilemap->ypos > 32) teui.tilemap->ypos = 32;
+			teui.tilemap->update();
+			break;
+		case Qt::Key_A:
+			teui.tilemap->xpos--;
+			if (teui.tilemap->xpos < 0) teui.tilemap->xpos = 0;
+			teui.tilemap->update();
+			break;
+		case Qt::Key_D:
+			teui.tilemap->xpos++;
+			if (teui.tilemap->xpos > 32) teui.tilemap->xpos = 32;
+			teui.tilemap->update();
+			break;
+
+	}
 }
 
 void MWin::changeCol(int idx) {
@@ -133,6 +192,26 @@ void drawTileMap(MLabel* lab) {
 // #######################################
 
 MLabel::MLabel(QWidget *p):QLabel(p) {
+	colidx = 0;
+	row = 0;
+}
+
+void MLabel::drawTile(int xpos, int ypos, int idx, int flag, QPainter* pnt) {
+	int x,y,col;
+	for (y = 0; y < 8; y++) {
+		for (x = 0; x < 8; x++) {
+			col = (ui.layPal->value() << 6) | (tiles[idx].pal << 4) | tiles[idx].data[x + (y << 3)];
+			pnt->setPen(pal[col].col);
+			if (flag & 1) {
+				pnt->drawPoint(xpos + x * 2, ypos + y * 2);
+				pnt->drawPoint(xpos + x * 2, ypos + y * 2 + 1);
+				pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2);
+				pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2 + 1);
+			} else {
+				pnt->drawPoint(xpos + x, ypos + y);
+			}
+		}
+	}
 }
 
 void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) {
@@ -153,8 +232,7 @@ void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) 
 void MLabel::paintEvent(QPaintEvent*) {
 	int idx,tnum; //,tpal;
 	int x,y;
-	int xpos,ypos;
-	int col;
+//	int xpos,ypos;
 //	Tile* til = &tiles[ui.tileNum->value()];
 	QPainter pnt;
 	pnt.begin(this);
@@ -195,28 +273,29 @@ void MLabel::paintEvent(QPaintEvent*) {
 			drawEditBox(-66,194,tnum + 63,Qt::darkGray,&pnt);
 			drawEditBox(64,194,tnum + 64,Qt::darkGray,&pnt);
 			drawEditBox(194,194,tnum + 65,Qt::darkGray,&pnt);
-
-//			idx = 0;
-//			tpal = ((ui.layPal->value() << 2) | til->pal) << 4;
-//			pnt.setPen(Qt::gray);
-//			for (y = 64; y < 192; y += 16) {
-//				for (x = 64; x < 192; x += 16) {
-//					pnt.setBrush(pal[tpal | (til->data[idx] & 0x0f)].col);
-//					pnt.drawRect(x,y,16,16);
-//					idx++;
-//				}
-//			}
 			break;
 		case ML_BIGVIEW:
 			for (idx = 0; idx < 4096; idx++) {
 				xpos = (idx & 0x3f) << 3;
 				ypos = (idx & 0xfc0) >> 3;
-				for (y = 0; y < 8; y++) {
-					for (x = 0; x < 8; x++) {
-						col = (ui.layPal->value() << 6) | (tiles[idx].pal << 4) | tiles[idx].data[x + y * 8];
-						pnt.setPen(pal[col].col);
-						pnt.drawPoint(xpos + x, ypos + y);
-					}
+				drawTile(xpos,ypos,idx,0,&pnt);
+			}
+			break;
+		case ML_TILEROW:
+			for (y = 0; y < 8; y++) {
+				for (x = 0; x < 64; x++) {
+					drawTile(x << 3, y << 3, ((row + y) << 6) + x,0,&pnt);
+				}
+			}
+			break;
+		case ML_TILESHOW:
+			drawTile(0,0,teui.tileLine->colidx,1,&pnt);
+			break;
+		case ML_TILEMAP:
+			int idx = (ypos << 6) + xpos;
+			for (y = 0; y < 32; y++) {
+				for (x = 0; x < 32; x++) {
+					drawTile(x << 4, y << 4, tileMap[0][idx + (y << 6) + x],1,&pnt);
 				}
 			}
 			break;
@@ -256,23 +335,46 @@ void MLabel::mousePressEvent(QMouseEvent* ev) {
 			emit colChanged(colidx);
 			hide();
 			break;
+		case ML_TILEROW:
+			colidx = ((row + (ev->y() >> 3)) << 6) | (ev->x() >> 3);
+			teui.tileShow->update();
+			break;
+		case ML_TILEMAP:
+			mouseMoveEvent(ev);
+			break;
 	}
 }
 
 void MLabel::mouseMoveEvent(QMouseEvent *ev) {
-	if (type != ML_TILEDIT) return;
-	if (ev->x() < 64) return;
-	if (ev->y() < 64) return;
-	if (ev->x() > 191) return;
-	if (ev->y() > 191) return;
-	colidx = (((ev->y() - 64) & 0xf0) >> 1) | ((ev->x() - 64) >> 4);
-	if (ev->buttons() & Qt::LeftButton) {
-		tiles[ui.tileNum->value()].data[colidx] = ui.tilePalGrid->colidx & 0x0f;
+	switch(type) {
+		case ML_TILEDIT:
+			if (ev->x() < 64) break;
+			if (ev->y() < 64) break;
+			if (ev->x() > 191) break;
+			if (ev->y() > 191) break;
+			colidx = (((ev->y() - 64) & 0xf0) >> 1) | ((ev->x() - 64) >> 4);
+			if (ev->buttons() & Qt::LeftButton)
+				tiles[ui.tileNum->value()].data[colidx] = ui.tilePalGrid->colidx & 0x0f;
+			if (ev->buttons() & Qt::RightButton)
+				tiles[ui.tileNum->value()].data[colidx] = 0x00;
+			update();
+			break;
+		case ML_TILEMAP:
+			if (ev->x() < 0) break;
+			if (ev->x() > 511) break;
+			if (ev->y() < 0) break;
+			if (ev->y() > 511) break;
+			colidx = (ypos + (ev->y() >> 4)) << 6;
+			colidx += (xpos + (ev->x() >> 4));
+			if (ev->buttons() & Qt::LeftButton)
+				tileMap[0][colidx] = teui.tileLine->colidx;
+			if (ev->buttons() & Qt::RightButton) {
+				teui.tileLine->colidx = tileMap[0][colidx];
+				teui.tileShow->update();
+			}
+			update();
+			break;
 	}
-	if (ev->buttons() & Qt::RightButton) {
-		tiles[ui.tileNum->value()].data[colidx] = 0x00;
-	}
-	update();
 }
 
 // open-save

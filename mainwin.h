@@ -2,9 +2,21 @@
 #define	_MAINWIN_H
 
 #include <QMainWindow>
+#include <QDialog>
 #include "mlabel.h"
 
 #define	BLK_CHA		1
+
+class TMEdit : public QDialog {
+	Q_OBJECT
+	public:
+		TMEdit(QWidget* p=NULL);
+	private slots:
+		void tileRowUp();
+		void tileRowDn();
+	protected:
+		void keyPressEvent(QKeyEvent*);
+};
 
 class MWin : public QMainWindow {
 	Q_OBJECT
@@ -13,6 +25,7 @@ class MWin : public QMainWindow {
 	private:
 		int flag;
 		MLabel bigview;
+		TMEdit* tedit;
 		void updatePal();
 		void saveTiles(QString);
 		void savePal(QString);

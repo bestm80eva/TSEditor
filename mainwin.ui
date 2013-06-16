@@ -311,7 +311,14 @@
     <addaction name="actOpenPrj"/>
     <addaction name="actSavePrj"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actTMEdit"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actSavePrj">
@@ -322,6 +329,11 @@
   <action name="actOpenPrj">
    <property name="text">
     <string>Open project</string>
+   </property>
+  </action>
+  <action name="actTMEdit">
+   <property name="text">
+    <string>TileMap editor</string>
    </property>
   </action>
  </widget>
