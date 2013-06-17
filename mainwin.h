@@ -11,9 +11,13 @@ class TMEdit : public QDialog {
 	Q_OBJECT
 	public:
 		TMEdit(QWidget* p=NULL);
+	private:
+		QString tmPath;
 	private slots:
 		void tileRowUp();
 		void tileRowDn();
+		void openTMap();
+		void saveTMap();
 	protected:
 		void keyPressEvent(QKeyEvent*);
 };

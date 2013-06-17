@@ -83,6 +83,10 @@ TMEdit::TMEdit(QWidget *p):QDialog(p) {
 
 	connect(teui.tbLeft,SIGNAL(released()),this,SLOT(tileRowUp()));
 	connect(teui.tbRight,SIGNAL(released()),this,SLOT(tileRowDn()));
+	connect(teui.l2box,SIGNAL(stateChanged(int)),teui.tilemap,SLOT(update()));
+
+	connect(teui.tbSave,SIGNAL(released()),this,SLOT(saveTMap()));
+	connect(teui.tbOpen,SIGNAL(released()),this,SLOT(openTMap()));
 }
 
 void TMEdit::tileRowUp() {
@@ -95,6 +99,61 @@ void TMEdit::tileRowDn() {
 	if (teui.tileLine->row > 55) return;
 	teui.tileLine->row++;
 	teui.tileLine->update();
+}
+
+void TMEdit::openTMap() {
+	QString path = QFileDialog::getOpenFileName(this,"Open tilemap",tmPath,"tilemap (*.tsm);");
+	if (path == "") return;
+	QFile file(path);
+	if (file.open(QFile::ReadOnly)) {
+		tmPath = path;
+		int x,y,idx,tile;
+		unsigned char ch;
+		idx = 0;
+		for (y = 0; y < 64; y++) {
+			for (x = 0; x < 64; x++) {
+				file.getChar((char*)&ch);
+				tile = ch;
+				file.getChar((char*)&ch);
+				tile |= ((ch & 0x0f) << 8);
+				tileMap[0][idx + x] = tile;
+			}
+			for (x = 0; x < 64; x++) {
+				file.getChar((char*)&ch);
+				tile = ch;
+				file.getChar((char*)&ch);
+				tile |= ((ch & 0x0f) << 8);
+				tileMap[1][idx + x] = tile;
+			}
+			idx += 64;
+		}
+	}
+}
+
+void TMEdit::saveTMap() {
+	QString path = QFileDialog::getSaveFileName(this,"Save tilemap",tmPath,"tilemap (*.tsm);");
+	if (path == "") return;
+	QFile file(path);
+	if (file.open(QFile::WriteOnly)) {
+		tmPath = path;
+		int x,y,idx,tile;
+		idx = 0;
+		for (y = 0; y < 64; y++) {
+			for (x = 0; x < 64; x++) {
+				tile = tileMap[0][idx + x] & 0xfff;
+				tile |= (tiles[tile].pal & 3 << 12);
+				file.putChar(tile & 0xff);
+				file.putChar((tile >> 8) & 0xff);
+			}
+			for (x = 0; x < 64; x++) {
+				tile = tileMap[1][idx + x] & 0xfff;
+				tile |= (tiles[tile].pal & 3 << 12);
+				file.putChar(tile & 0xff);
+				file.putChar((tile >> 8) & 0xff);
+			}
+			idx += 64;
+		}
+	}
 }
 
 void TMEdit::keyPressEvent(QKeyEvent* ev) {
@@ -119,7 +178,6 @@ void TMEdit::keyPressEvent(QKeyEvent* ev) {
 			if (teui.tilemap->xpos > 32) teui.tilemap->xpos = 32;
 			teui.tilemap->update();
 			break;
-
 	}
 }
 
@@ -196,19 +254,32 @@ MLabel::MLabel(QWidget *p):QLabel(p) {
 	row = 0;
 }
 
+#define	TILE_DBLSZ	1
+#define	TILE_UNDER	(1<<1)
+#define	TILE_TRANS	(1<<2)
+#define	TILE_NZ		(1<<3)
+
 void MLabel::drawTile(int xpos, int ypos, int idx, int flag, QPainter* pnt) {
+	if ((idx == 0) && (flag & TILE_NZ)) return;
 	int x,y,col;
+	QColor clr;
 	for (y = 0; y < 8; y++) {
 		for (x = 0; x < 8; x++) {
 			col = (ui.layPal->value() << 6) | (tiles[idx].pal << 4) | tiles[idx].data[x + (y << 3)];
-			pnt->setPen(pal[col].col);
-			if (flag & 1) {
-				pnt->drawPoint(xpos + x * 2, ypos + y * 2);
-				pnt->drawPoint(xpos + x * 2, ypos + y * 2 + 1);
-				pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2);
-				pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2 + 1);
-			} else {
-				pnt->drawPoint(xpos + x, ypos + y);
+			if ((col & 0x0f) || (~flag & TILE_TRANS)) {
+				clr = pal[col].col;
+				if (flag & TILE_UNDER) {
+					clr.setRgb(clr.red() >> 2, clr.green() >> 2, clr.blue() >> 2);
+				}
+				pnt->setPen(clr);
+				if (flag & TILE_DBLSZ) {
+					pnt->drawPoint(xpos + x * 2, ypos + y * 2);
+					pnt->drawPoint(xpos + x * 2, ypos + y * 2 + 1);
+					pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2);
+					pnt->drawPoint(xpos + x * 2 + 1, ypos + y * 2 + 1);
+				} else {
+					pnt->drawPoint(xpos + x, ypos + y);
+				}
 			}
 		}
 	}
@@ -289,13 +360,18 @@ void MLabel::paintEvent(QPaintEvent*) {
 			}
 			break;
 		case ML_TILESHOW:
-			drawTile(0,0,teui.tileLine->colidx,1,&pnt);
+			drawTile(0,0,teui.tileLine->colidx,TILE_DBLSZ,&pnt);
 			break;
 		case ML_TILEMAP:
 			int idx = (ypos << 6) + xpos;
 			for (y = 0; y < 32; y++) {
 				for (x = 0; x < 32; x++) {
-					drawTile(x << 4, y << 4, tileMap[0][idx + (y << 6) + x],1,&pnt);
+					if (teui.l2box->isChecked()) {
+						drawTile(x << 4, y << 4, tileMap[0][idx + (y << 6) + x],TILE_DBLSZ | TILE_UNDER,&pnt);
+						drawTile(x << 4, y << 4, tileMap[1][idx + (y << 6) + x],TILE_DBLSZ | TILE_TRANS | TILE_NZ,&pnt);
+					} else {
+						drawTile(x << 4, y << 4, tileMap[0][idx + (y << 6) + x],TILE_DBLSZ,&pnt);
+					}
 				}
 			}
 			break;
@@ -366,10 +442,11 @@ void MLabel::mouseMoveEvent(QMouseEvent *ev) {
 			if (ev->y() > 511) break;
 			colidx = (ypos + (ev->y() >> 4)) << 6;
 			colidx += (xpos + (ev->x() >> 4));
+			row = (teui.l2box->isChecked()) ? 1 : 0;
 			if (ev->buttons() & Qt::LeftButton)
-				tileMap[0][colidx] = teui.tileLine->colidx;
+				tileMap[row][colidx] = teui.tileLine->colidx;
 			if (ev->buttons() & Qt::RightButton) {
-				teui.tileLine->colidx = tileMap[0][colidx];
+				teui.tileLine->colidx = tileMap[row][colidx];
 				teui.tileShow->update();
 			}
 			update();

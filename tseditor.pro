@@ -15,3 +15,6 @@ SOURCES += main.cpp mainwin.cpp
 FORMS += \
     mainwin.ui \
     tmedit.ui
+
+RESOURCES += \
+    resrs.qrc
