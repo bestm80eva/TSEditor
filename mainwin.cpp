@@ -47,13 +47,14 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	bigview.setWindowModality(Qt::ApplicationModal);
 	bigview.setFixedSize(512,512);
 
+/*
 	for (int i = 0; i < 16; i++) {
 		pal[i << 4].r = -1;
 		pal[i << 4].g = -1;
 		pal[i << 4].b = -1;
 		pal[i << 4].col = QColor(100,100,100);
 	}
-
+*/
 	connect(ui.paledit,SIGNAL(colChanged(int)),this,SLOT(changeCol(int)));
 	connect(ui.sliderB,SIGNAL(valueChanged(int)),this,SLOT(colChanged()));
 	connect(ui.sliderR,SIGNAL(valueChanged(int)),this,SLOT(colChanged()));
@@ -182,16 +183,12 @@ void TMEdit::keyPressEvent(QKeyEvent* ev) {
 }
 
 void MWin::changeCol(int idx) {
-	if (idx & 0x0f) {
-		ui.colwid->setEnabled(true);
-		flag |= BLK_CHA;
-		ui.sliderB->setValue(pal[idx].b);
-		ui.sliderR->setValue(pal[idx].r);
-		flag &= ~BLK_CHA;
-		ui.sliderG->setValue(pal[idx].g);
-	} else {
-		ui.colwid->setEnabled(false);
-	}
+	ui.colwid->setEnabled(true);
+	flag |= BLK_CHA;
+	ui.sliderB->setValue(pal[idx].b);
+	ui.sliderR->setValue(pal[idx].r);
+	flag &= ~BLK_CHA;
+	ui.sliderG->setValue(pal[idx].g);
 }
 
 void MWin::colChanged() {
@@ -268,6 +265,7 @@ void MLabel::drawTile(int xpos, int ypos, int idx, int flag, QPainter* pnt) {
 			col = (ui.layPal->value() << 6) | (tiles[idx].pal << 4) | tiles[idx].data[x + (y << 3)];
 			if ((col & 0x0f) || (~flag & TILE_TRANS)) {
 				clr = pal[col].col;
+				if ((col & 0x0f) == 0) clr = Qt::black;
 				if (flag & TILE_UNDER) {
 					clr.setRgb(clr.red() >> 2, clr.green() >> 2, clr.blue() >> 2);
 				}
@@ -290,11 +288,21 @@ void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) 
 	int tpal = ((ui.layPal->value() << 2) | til->pal) << 4;
 	int x,y;
 	int idx = 0;
-	pnt->setPen(bcol);
 	for (y = yst; y < (yst + 128); y += 16) {
 		for (x = xst; x < (xst + 128); x += 16) {
-			pnt->setBrush(pal[tpal | (til->data[idx] & 0x0f)].col);
-			pnt->drawRect(x,y,16,16);
+			if (til->data[idx] & 0x0f) {
+				pnt->setPen(bcol);
+				pnt->setBrush(pal[tpal | (til->data[idx] & 0x0f)].col);
+				pnt->drawRect(x,y,16,16);
+			} else {
+				pnt->setPen(Qt::black);
+				pnt->setBrush(Qt::black);
+				pnt->drawRect(x,y,16,16);
+				pnt->setPen(Qt::darkGray);
+				pnt->drawLine(x,y,x+15,y+15);
+				pnt->drawLine(x+15,y,x,y+15);
+			}
+
 			idx++;
 		}
 	}
@@ -333,17 +341,17 @@ void MLabel::paintEvent(QPaintEvent*) {
 
 			pnt.fillRect(0,0,256,256,Qt::black);
 
-			drawEditBox(-66,-66,tnum - 65,Qt::darkGray,&pnt);
-			drawEditBox(64,-66,tnum - 64,Qt::darkGray,&pnt);
-			drawEditBox(194,-66,tnum - 63,Qt::darkGray,&pnt);
+			drawEditBox(-66,-66,tnum - 65,Qt::black,&pnt);
+			drawEditBox(64,-66,tnum - 64,Qt::black,&pnt);
+			drawEditBox(194,-66,tnum - 63,Qt::black,&pnt);
 
-			drawEditBox(-66,64,tnum - 1,Qt::darkGray,&pnt);
-			drawEditBox(64,64,tnum,Qt::black,&pnt);
-			drawEditBox(194,64,tnum + 1,Qt::darkGray,&pnt);
+			drawEditBox(-66,64,tnum - 1,Qt::black,&pnt);
+			drawEditBox(64,64,tnum,Qt::gray,&pnt);
+			drawEditBox(194,64,tnum + 1,Qt::black,&pnt);
 
-			drawEditBox(-66,194,tnum + 63,Qt::darkGray,&pnt);
-			drawEditBox(64,194,tnum + 64,Qt::darkGray,&pnt);
-			drawEditBox(194,194,tnum + 65,Qt::darkGray,&pnt);
+			drawEditBox(-66,194,tnum + 63,Qt::black,&pnt);
+			drawEditBox(64,194,tnum + 64,Qt::black,&pnt);
+			drawEditBox(194,194,tnum + 65,Qt::black,&pnt);
 			break;
 		case ML_BIGVIEW:
 			for (idx = 0; idx < 4096; idx++) {
