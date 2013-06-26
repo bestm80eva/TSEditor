@@ -464,7 +464,7 @@ void MLabel::mousePressEvent(QMouseEvent* ev) {
 			}
 			break;
 		case ML_BIGVIEW:
-			colidx = ((ev->y() & 0x1f8) / 9 * 64) | ((ev->x() & 0x1f8) / 9);
+			colidx = (((ev->y() / 9) & 0x3f) * 64) | ((ev->x() / 9) & 0x3f);
 			emit colChanged(colidx);
 			hide();
 			break;
