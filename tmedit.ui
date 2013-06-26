@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
+    <width>571</width>
     <height>601</height>
    </rect>
   </property>
@@ -94,12 +94,20 @@
        <property name="text">
         <string>O</string>
        </property>
+       <property name="icon">
+        <iconset resource="resrs.qrc">
+         <normaloff>:/images/document-open.png</normaloff>:/images/document-open.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QToolButton" name="tbSave">
        <property name="text">
         <string>S</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resrs.qrc">
+         <normaloff>:/images/document-save.png</normaloff>:/images/document-save.png</iconset>
        </property>
       </widget>
      </item>

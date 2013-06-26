@@ -31,10 +31,6 @@ class MWin : public QMainWindow {
 		MLabel bigview;
 		TMEdit* tedit;
 		void updatePal();
-		void saveTiles(QString);
-		void savePal(QString);
-		void openTiles(QString);
-		void openPal(QString);
 	private slots:
 		void changeCol(int);
 		void colChanged();
@@ -42,8 +38,10 @@ class MWin : public QMainWindow {
 		void tilChange(int);
 		void pickTile();
 
-		void openPrj();
-		void savePrj();
+		void saveTiles();
+		void savePal();
+		void openTiles();
+		void openPal();
 };
 
 #endif

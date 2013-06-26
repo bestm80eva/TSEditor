@@ -66,8 +66,10 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	connect(ui.tbpicktile,SIGNAL(released()),this,SLOT(pickTile()));
 	connect(&bigview,SIGNAL(colChanged(int)),ui.tileNum,SLOT(setValue(int)));
 
-	connect(ui.actOpenPrj,SIGNAL(triggered()),this,SLOT(openPrj()));
-	connect(ui.actSavePrj,SIGNAL(triggered()),this,SLOT(savePrj()));
+	connect(ui.palOpen,SIGNAL(clicked()),SLOT(openPal()));
+	connect(ui.palSave,SIGNAL(clicked()),SLOT(savePal()));
+	connect(ui.tileOpen,SIGNAL(clicked()),SLOT(openTiles()));
+	connect(ui.tileSave,SIGNAL(clicked()),SLOT(saveTiles()));
 
 	connect(ui.actTMEdit,SIGNAL(triggered()),tedit,SLOT(show()));
 }
@@ -331,8 +333,16 @@ void MLabel::paintEvent(QPaintEvent*) {
 			idx = ((ui.layPal->value() << 2) | ui.tilePal->value()) << 4;
 			for (x = 0; x < 256; x += 16) {
 				pnt.setPen((idx == colidx) ? Qt::red : Qt::gray);
-				pnt.setBrush(pal[idx].col);
-				pnt.drawRect(x,0,16,16);
+				if (x == 0) {
+					pnt.setBrush(Qt::black);
+					pnt.drawRect(0,0,16,16);
+					pnt.setPen(Qt::darkGray);
+					pnt.drawLine(0,0,15,15);
+					pnt.drawLine(15,0,0,15);
+				} else {
+					pnt.setBrush(pal[idx].col);
+					pnt.drawRect(x,0,16,16);
+				}
 				idx++;
 			}
 			break;
@@ -437,11 +447,16 @@ void MLabel::mouseMoveEvent(QMouseEvent *ev) {
 			if (ev->x() > 191) break;
 			if (ev->y() > 191) break;
 			colidx = (((ev->y() - 64) & 0xf0) >> 1) | ((ev->x() - 64) >> 4);
-			if (ev->buttons() & Qt::LeftButton)
-				tiles[ui.tileNum->value()].data[colidx] = ui.tilePalGrid->colidx & 0x0f;
-			if (ev->buttons() & Qt::RightButton)
-				tiles[ui.tileNum->value()].data[colidx] = 0x00;
-			update();
+			if (tiles[ui.tileNum->value()].data[colidx] != (ui.tilePalGrid->colidx & 0x0f)) {
+				if (ev->buttons() & Qt::LeftButton) {
+					tiles[ui.tileNum->value()].data[colidx] = ui.tilePalGrid->colidx & 0x0f;
+					update();
+				}
+				if (ev->buttons() & Qt::RightButton) {
+					ui.tilePalGrid->colidx = tiles[ui.tileNum->value()].data[colidx] & 0x0f;
+					ui.tilePalGrid->update();
+				}
+			}
 			break;
 		case ML_TILEMAP:
 			if (ev->x() < 0) break;
@@ -451,30 +466,24 @@ void MLabel::mouseMoveEvent(QMouseEvent *ev) {
 			colidx = (ypos + (ev->y() >> 4)) << 6;
 			colidx += (xpos + (ev->x() >> 4));
 			row = (teui.l2box->isChecked()) ? 1 : 0;
-			if (ev->buttons() & Qt::LeftButton)
+			if ((ev->buttons() & Qt::LeftButton) && (tileMap[row][colidx] != teui.tileLine->colidx)) {
 				tileMap[row][colidx] = teui.tileLine->colidx;
-			if (ev->buttons() & Qt::RightButton) {
+				update();
+			}
+			if ((ev->buttons() & Qt::RightButton) && (teui.tileLine->colidx != tileMap[row][colidx])) {
 				teui.tileLine->colidx = tileMap[row][colidx];
 				teui.tileShow->update();
+				update();
 			}
-			update();
 			break;
 	}
 }
 
 // open-save
 
-void MWin::savePrj() {
-	QString path = QFileDialog::getSaveFileName(this,"Save all","","TSConf (*.tst)");
+void MWin::saveTiles() {
+	QString path = QFileDialog::getSaveFileName(this,"Save tiles","","TSConf tiles (*.tst)");
 	if (path == "") return;
-
-	saveTiles(path);
-	path.remove(path.size() - 3, 3);
-	path.append("tsp");
-	savePal(path);
-}
-
-void MWin::saveTiles(QString path) {
 	QFile file(path);
 	if (!file.open(QFile::WriteOnly)) return;
 
@@ -504,7 +513,9 @@ void MWin::saveTiles(QString path) {
 	}
 }
 
-void MWin::savePal(QString path) {
+void MWin::savePal() {
+	QString path = QFileDialog::getSaveFileName(this,"Save palette","","TSConf palette (*.tsp)");
+	if (path == "") return;
 	QFile file(path);
 	if (!file.open(QFile::WriteOnly)) return;
 	int idx;
@@ -521,17 +532,9 @@ void MWin::savePal(QString path) {
 	file.close();
 }
 
-void MWin::openPrj() {
-	QString path = QFileDialog::getOpenFileName(this,"Open project","","TSConf (*.tst)");
+void MWin::openPal() {
+	QString path = QFileDialog::getOpenFileName(this,"Open palette","","TSConf palette (*.tsp)");
 	if (path == "") return;
-	openTiles(path);
-	path.remove(path.size() - 3, 3);
-	path.append("tsp");
-	openPal(path);
-
-}
-
-void MWin::openPal(QString path) {
 	QFile file(path);
 	if (!file.open(QFile::ReadOnly)) return;
 	int col;
@@ -557,7 +560,10 @@ void MWin::openPal(QString path) {
 	ui.tiledit->update();
 }
 
-void MWin::openTiles(QString path) {
+void MWin::openTiles() {
+	QString path = QFileDialog::getOpenFileName(this,"Open tiles","","TSConf tiles (*.tst)");
+	if (path == "") return;
+
 	QFile file(path);
 	if (!file.open(QFile::ReadOnly)) return;
 	char col;
