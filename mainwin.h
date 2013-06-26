@@ -6,6 +6,7 @@
 #include "mlabel.h"
 
 #define	BLK_CHA		1
+#define	PICK_CP		(1<<1)		// copy selected tile to current instead
 
 class TMEdit : public QDialog {
 	Q_OBJECT
@@ -36,7 +37,13 @@ class MWin : public QMainWindow {
 		void colChanged();
 		void palChange();
 		void tilChange(int);
+
 		void pickTile();
+		void pickCopy();
+		void picked(int);
+
+		void flipHor();
+		void flipVer();
 
 		void saveTiles();
 		void savePal();

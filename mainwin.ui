@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
-    <height>470</height>
+    <width>571</width>
+    <height>429</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -84,16 +84,6 @@
       <item>
        <widget class="QWidget" name="colwid" native="true">
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QSlider" name="sliderB">
-           <property name="maximum">
-            <number>24</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="2">
           <widget class="QSpinBox" name="spinG">
            <property name="readOnly">
@@ -104,23 +94,13 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QSpinBox" name="spinB">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
+         <item row="4" column="1">
+          <widget class="QSlider" name="sliderB">
            <property name="maximum">
-            <number>255</number>
+            <number>24</number>
            </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Blue</string>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -168,7 +148,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="6" column="1">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -181,13 +161,33 @@
            </property>
           </spacer>
          </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Blue</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QSpinBox" name="spinB">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -228,152 +228,202 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_4">
+       <widget class="MLabel" name="tilePalGrid">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>256</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>256</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>CurTileColors</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="MLabel" name="tiledit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>256</width>
+          <height>256</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>256</width>
+          <height>256</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>Layer Pal</string>
+           <string>TN</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item>
+         <widget class="QSpinBox" name="tileNum">
+          <property name="maximum">
+           <number>4095</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="tbpicktile">
+          <property name="text">
+           <string>pick</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resrs.qrc">
+            <normaloff>:/images/color-picker.png</normaloff>:/images/color-picker.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>LP</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QSpinBox" name="layPal">
           <property name="maximum">
            <number>3</number>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item>
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Tile pal</string>
+           <string>TP</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item>
          <widget class="QSpinBox" name="tilePal">
           <property name="maximum">
            <number>3</number>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="MLabel" name="tilePalGrid">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>256</width>
-            <height>16</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>256</width>
-            <height>16</height>
-           </size>
-          </property>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QToolButton" name="flipH">
           <property name="text">
-           <string>CurTileColors</string>
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resrs.qrc">
+            <normaloff>:/images/flip_ver.png</normaloff>:/images/flip_ver.png</iconset>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Tile</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="tileNum">
-            <property name="maximum">
-             <number>4095</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="tbpicktile">
-            <property name="text">
-             <string>pick</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item row="2" column="2">
-         <widget class="MLabel" name="tiledit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>256</width>
-            <height>256</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>256</width>
-            <height>256</height>
-           </size>
-          </property>
+        <item>
+         <widget class="QToolButton" name="flipV">
           <property name="text">
-           <string>TextLabel</string>
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="resrs.qrc">
+            <normaloff>:/images/flip_hor.png</normaloff>:/images/flip_hor.png</iconset>
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
-         <spacer name="horizontalSpacer">
+        <item>
+         <spacer name="horizontalSpacer_5">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>13</width>
-            <height>253</height>
+            <width>40</width>
+            <height>20</height>
            </size>
           </property>
          </spacer>
         </item>
-        <item row="3" column="2">
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item>
+         <widget class="QToolButton" name="copyFrom">
+          <property name="text">
+           <string>...</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
+          <property name="icon">
+           <iconset resource="resrs.qrc">
+            <normaloff>:/images/go-next-view-page.png</normaloff>:/images/go-next-view-page.png</iconset>
           </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
@@ -382,7 +432,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>676</width>
+     <width>571</width>
      <height>20</height>
     </rect>
    </property>

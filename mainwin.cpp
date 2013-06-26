@@ -45,16 +45,8 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 
 	bigview.type = ML_BIGVIEW;
 	bigview.setWindowModality(Qt::ApplicationModal);
-	bigview.setFixedSize(512,512);
+	bigview.setFixedSize(575,575);
 
-/*
-	for (int i = 0; i < 16; i++) {
-		pal[i << 4].r = -1;
-		pal[i << 4].g = -1;
-		pal[i << 4].b = -1;
-		pal[i << 4].col = QColor(100,100,100);
-	}
-*/
 	connect(ui.paledit,SIGNAL(colChanged(int)),this,SLOT(changeCol(int)));
 	connect(ui.sliderB,SIGNAL(valueChanged(int)),this,SLOT(colChanged()));
 	connect(ui.sliderR,SIGNAL(valueChanged(int)),this,SLOT(colChanged()));
@@ -64,7 +56,11 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	connect(ui.tileNum,SIGNAL(valueChanged(int)),this,SLOT(tilChange(int)));
 	connect(ui.tiledit,SIGNAL(tileChanged(int)),this,SLOT(tilChange(int)));
 	connect(ui.tbpicktile,SIGNAL(released()),this,SLOT(pickTile()));
-	connect(&bigview,SIGNAL(colChanged(int)),ui.tileNum,SLOT(setValue(int)));
+	connect(ui.copyFrom,SIGNAL(released()),this,SLOT(pickCopy()));
+	connect(&bigview,SIGNAL(colChanged(int)),this,SLOT(picked(int)));
+
+	connect(ui.flipH,SIGNAL(released()),this,SLOT(flipHor()));
+	connect(ui.flipV,SIGNAL(released()),this,SLOT(flipVer()));
 
 	connect(ui.palOpen,SIGNAL(clicked()),SLOT(openPal()));
 	connect(ui.palSave,SIGNAL(clicked()),SLOT(savePal()));
@@ -224,7 +220,49 @@ void MWin::tilChange(int idx) {
 }
 
 void MWin::pickTile() {
+	flag &= ~PICK_CP;
 	bigview.show();
+}
+
+void MWin::pickCopy() {
+	flag |= PICK_CP;
+	bigview.show();
+}
+
+void MWin::picked(int val) {
+	if (flag & PICK_CP) {
+		tiles[ui.tileNum->value()] = tiles[val];
+		ui.tilePalGrid->update();
+		ui.tiledit->update();
+	} else {
+		ui.tileNum->setValue(val);
+	}
+}
+
+void MWin::flipVer() {
+	Tile* til = &tiles[ui.tileNum->value()];
+	unsigned char oldata[64];
+	memcpy(oldata,til->data,64);
+	int x,y;
+	for (y = 0; y < 8; y++) {
+		for (x = 0; x < 8; x++) {
+			til->data[(y << 3) + x] = oldata[(y << 3) + 7 - x];
+		}
+	}
+	ui.tiledit->update();
+}
+
+void MWin::flipHor() {
+	Tile* til = &tiles[ui.tileNum->value()];
+	unsigned char oldata[64];
+	memcpy(oldata,til->data,64);
+	int x,y;
+	for (y = 0; y < 8; y++) {
+		for (x = 0; x < 8; x++) {
+			til->data[(y << 3) + x] = oldata[((7 - y) << 3) + x];
+		}
+	}
+	ui.tiledit->update();
 }
 
 void drawTileMap(MLabel* lab) {
@@ -364,9 +402,10 @@ void MLabel::paintEvent(QPaintEvent*) {
 			drawEditBox(194,194,tnum + 65,Qt::black,&pnt);
 			break;
 		case ML_BIGVIEW:
+			pnt.fillRect(0,0,575,575,Qt::black);
 			for (idx = 0; idx < 4096; idx++) {
-				xpos = (idx & 0x3f) << 3;
-				ypos = (idx & 0xfc0) >> 3;
+				xpos = (idx & 0x3f) * 9;
+				ypos = (idx & 0xfc0) / 64 * 9;
 				drawTile(xpos,ypos,idx,0,&pnt);
 			}
 			break;
@@ -425,7 +464,7 @@ void MLabel::mousePressEvent(QMouseEvent* ev) {
 			}
 			break;
 		case ML_BIGVIEW:
-			colidx = ((ev->y() & 0x1f8) << 3) | ((ev->x() & 0x1f8) >> 3);
+			colidx = ((ev->y() & 0x1f8) / 9 * 64) | ((ev->x() & 0x1f8) / 9);
 			emit colChanged(colidx);
 			hide();
 			break;

@@ -4,5 +4,9 @@
         <file>images/go-up.png</file>
         <file>images/document-open.png</file>
         <file>images/document-save.png</file>
+        <file>images/flip_hor.png</file>
+        <file>images/flip_ver.png</file>
+        <file>images/color-picker.png</file>
+        <file>images/go-next-view-page.png</file>
     </qresource>
 </RCC>
