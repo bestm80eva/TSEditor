@@ -370,7 +370,7 @@ void MLabel::paintEvent(QPaintEvent*) {
 		case ML_TILEPAL:
 			idx = ((ui.layPal->value() << 2) | ui.tilePal->value()) << 4;
 			for (x = 0; x < 256; x += 16) {
-				pnt.setPen((idx == colidx) ? Qt::red : Qt::gray);
+				pnt.setPen(((idx & 0x0f) == (colidx & 0x0f)) ? Qt::red : Qt::gray);
 				if (x == 0) {
 					pnt.setBrush(Qt::black);
 					pnt.drawRect(0,0,16,16);
@@ -490,8 +490,7 @@ void MLabel::mouseMoveEvent(QMouseEvent *ev) {
 				if (ev->buttons() & Qt::LeftButton) {
 					tiles[ui.tileNum->value()].data[colidx] = ui.tilePalGrid->colidx & 0x0f;
 					update();
-				}
-				if (ev->buttons() & Qt::RightButton) {
+				} else if (ev->buttons() & Qt::RightButton) {
 					ui.tilePalGrid->colidx = tiles[ui.tileNum->value()].data[colidx] & 0x0f;
 					ui.tilePalGrid->update();
 				}
@@ -508,8 +507,7 @@ void MLabel::mouseMoveEvent(QMouseEvent *ev) {
 			if ((ev->buttons() & Qt::LeftButton) && (tileMap[row][colidx] != teui.tileLine->colidx)) {
 				tileMap[row][colidx] = teui.tileLine->colidx;
 				update();
-			}
-			if ((ev->buttons() & Qt::RightButton) && (teui.tileLine->colidx != tileMap[row][colidx])) {
+			} else if ((ev->buttons() & Qt::RightButton) && (teui.tileLine->colidx != tileMap[row][colidx])) {
 				teui.tileLine->colidx = tileMap[row][colidx];
 				teui.tileShow->update();
 				update();
