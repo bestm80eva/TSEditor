@@ -140,13 +140,13 @@ void TMEdit::saveTMap() {
 		for (y = 0; y < 64; y++) {
 			for (x = 0; x < 64; x++) {
 				tile = tileMap[0][idx + x] & 0xfff;
-				tile |= (tiles[tile].pal & 3 << 12);
+				tile |= ((tiles[tile].pal & 3) << 12);
 				file.putChar(tile & 0xff);
 				file.putChar((tile >> 8) & 0xff);
 			}
 			for (x = 0; x < 64; x++) {
 				tile = tileMap[1][idx + x] & 0xfff;
-				tile |= (tiles[tile].pal & 3 << 12);
+				tile |= ((tiles[tile].pal & 3) << 12);
 				file.putChar(tile & 0xff);
 				file.putChar((tile >> 8) & 0xff);
 			}
@@ -177,6 +177,8 @@ void TMEdit::keyPressEvent(QKeyEvent* ev) {
 			if (teui.tilemap->xpos > 32) teui.tilemap->xpos = 32;
 			teui.tilemap->update();
 			break;
+		case Qt::Key_E: tileRowDn(); break;
+		case Qt::Key_Q: tileRowUp(); break;
 	}
 }
 
