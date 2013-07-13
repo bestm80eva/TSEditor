@@ -563,8 +563,8 @@ void MWin::savePal() {
 		} else {
 			col = 0;
 		}
-		file.putChar((col & 0xff00) >> 8);
 		file.putChar(col & 0xff);
+		file.putChar((col & 0xff00) >> 8);
 	}
 	file.close();
 }
@@ -579,9 +579,9 @@ void MWin::openPal() {
 	int idx;
 	for (idx = 0; idx < 256; idx++) {
 		file.getChar((char*)&hcol);
-		col = hcol << 8;
+		col = hcol & 0xff;
 		file.getChar((char*)&hcol);
-		col |= hcol;
+		col |= (hcol << 8);
 		if (idx & 15) {
 			pal[idx].r = (col >> 10) & 0x1f;
 			pal[idx].g = (col >> 5) & 0x1f;
