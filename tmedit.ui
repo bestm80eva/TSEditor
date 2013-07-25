@@ -43,14 +43,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>16</width>
-         <height>16</height>
+         <width>32</width>
+         <height>32</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16</width>
-         <height>16</height>
+         <width>32</width>
+         <height>32</height>
         </size>
        </property>
        <property name="text">
@@ -73,6 +73,13 @@
       <widget class="QCheckBox" name="l2box">
        <property name="text">
         <string>L2</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="x2box">
+       <property name="text">
+        <string>x2</string>
        </property>
       </widget>
      </item>
