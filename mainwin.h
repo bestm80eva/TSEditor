@@ -44,6 +44,7 @@ class MWin : public QMainWindow {
 
 		void flipHor();
 		void flipVer();
+		void clearTile();
 
 		void saveTiles();
 		void savePal();

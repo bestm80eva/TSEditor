@@ -8,5 +8,6 @@
         <file>images/flip_ver.png</file>
         <file>images/color-picker.png</file>
         <file>images/go-next-view-page.png</file>
+        <file>images/delete.png</file>
     </qresource>
 </RCC>

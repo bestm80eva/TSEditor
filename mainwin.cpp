@@ -61,6 +61,7 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 
 	connect(ui.flipH,SIGNAL(released()),this,SLOT(flipHor()));
 	connect(ui.flipV,SIGNAL(released()),this,SLOT(flipVer()));
+	connect(ui.tbClear,SIGNAL(clicked()),this,SLOT(clearTile()));
 
 	connect(ui.palOpen,SIGNAL(clicked()),SLOT(openPal()));
 	connect(ui.palSave,SIGNAL(clicked()),SLOT(savePal()));
@@ -268,6 +269,12 @@ void MWin::flipHor() {
 	ui.tiledit->update();
 }
 
+void MWin::clearTile() {
+	Tile* til = &tiles[ui.tileNum->value()];
+	memset(til->data,0x00,64);
+	ui.tiledit->update();
+}
+
 void drawTileMap(MLabel* lab) {
 	QImage bigimg(512,512,QImage::Format_RGB888);
 	int idx,x,y;
@@ -424,8 +431,8 @@ void MLabel::paintEvent(QPaintEvent*) {
 			pnt.fillRect(0,0,32,32,Qt::black);
 			if (teui.x2box->isChecked()) {
 				drawTile(0,0,teui.tileLine->colidx,TILE_DBLSZ,&pnt);
-				drawTile(0,16,teui.tileLine->colidx + 1,TILE_DBLSZ,&pnt);
-				drawTile(16,0,teui.tileLine->colidx + 64,TILE_DBLSZ,&pnt);
+				drawTile(16,0,teui.tileLine->colidx + 1,TILE_DBLSZ,&pnt);
+				drawTile(0,16,teui.tileLine->colidx + 64,TILE_DBLSZ,&pnt);
 				drawTile(16,16,teui.tileLine->colidx + 65,TILE_DBLSZ,&pnt);
 			} else {
 				drawTile(8,8,teui.tileLine->colidx,TILE_DBLSZ,&pnt);
