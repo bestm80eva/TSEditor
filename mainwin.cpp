@@ -62,6 +62,7 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	connect(ui.flipH,SIGNAL(released()),this,SLOT(flipHor()));
 	connect(ui.flipV,SIGNAL(released()),this,SLOT(flipVer()));
 	connect(ui.tbClear,SIGNAL(clicked()),this,SLOT(clearTile()));
+	connect(ui.tbFill,SIGNAL(clicked()),this,SLOT(fillTile()));
 
 	connect(ui.palOpen,SIGNAL(clicked()),SLOT(openPal()));
 	connect(ui.palSave,SIGNAL(clicked()),SLOT(savePal()));
@@ -272,6 +273,12 @@ void MWin::flipHor() {
 void MWin::clearTile() {
 	Tile* til = &tiles[ui.tileNum->value()];
 	memset(til->data,0x00,64);
+	ui.tiledit->update();
+}
+
+void MWin::fillTile() {
+	Tile* til = &tiles[ui.tileNum->value()];
+	memset(til->data,ui.tilePalGrid->colidx & 0x0f,64);
 	ui.tiledit->update();
 }
 
