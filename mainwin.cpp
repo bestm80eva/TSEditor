@@ -24,6 +24,7 @@ unsigned char tslCoLevs[32] = {
 	255,255,255,255,255,255,255,255
 };
 
+int layPal = 0;
 int tileMap[2][4096];
 
 Tile tiles[4096];
@@ -59,8 +60,8 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	connect(ui.copyFrom,SIGNAL(released()),this,SLOT(pickCopy()));
 	connect(&bigview,SIGNAL(colChanged(int)),this,SLOT(picked(int)));
 
-	connect(ui.flipH,SIGNAL(released()),this,SLOT(flipHor()));
-	connect(ui.flipV,SIGNAL(released()),this,SLOT(flipVer()));
+	connect(ui.flipH,SIGNAL(clicked()),this,SLOT(flipHor()));
+	connect(ui.flipV,SIGNAL(clicked()),this,SLOT(flipVer()));
 	connect(ui.tbClear,SIGNAL(clicked()),this,SLOT(clearTile()));
 	connect(ui.tbFill,SIGNAL(clicked()),this,SLOT(fillTile()));
 
@@ -212,6 +213,7 @@ void MWin::colChanged() {
 }
 
 void MWin::palChange() {
+	layPal = ui.layPal->value();
 	tiles[ui.tileNum->value()].pal = ui.tilePal->value();
 	ui.tilePalGrid->update();
 	ui.tiledit->update();
@@ -343,7 +345,7 @@ void MLabel::drawTile(int xpos, int ypos, int idx, int flag, QPainter* pnt) {
 
 void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) {
 	Tile* til = &tiles[num & 0xfff];
-	int tpal = ((ui.layPal->value() << 2) | til->pal) << 4;
+	int tpal = ((layPal << 2) | til->pal) << 4;
 	int x,y;
 	int idx = 0;
 	for (y = yst; y < (yst + 128); y += 16) {
@@ -386,7 +388,7 @@ void MLabel::paintEvent(QPaintEvent*) {
 			}
 			break;
 		case ML_TILEPAL:
-			idx = ((ui.layPal->value() << 2) | ui.tilePal->value()) << 4;
+			idx = ((layPal << 2) | ui.tilePal->value()) << 4;
 			for (x = 0; x < 256; x += 16) {
 				pnt.setPen(((idx & 0x0f) == (colidx & 0x0f)) ? Qt::red : Qt::gray);
 				if (x == 0) {
@@ -467,6 +469,10 @@ void MLabel::mousePressEvent(QMouseEvent* ev) {
 	switch (type) {
 		case ML_PALEDIT:
 			colidx = (ev->y() & 0xf0) | (ev->x() >> 4);
+			if (ev->modifiers() & Qt::ControlModifier) {
+				ui.layPal->setValue((colidx & 0xc0) >> 6);
+				ui.tilePal->setValue((colidx & 0x30) >> 4);
+			}
 			update();
 			emit colChanged(colidx);
 			break;
@@ -662,13 +668,14 @@ void MWin::openTiles() {
 	char tmp;
 	if (file.open(QFile::ReadOnly)) {
 		file.getChar(&tmp);
-		ui.tilePal->setValue((tmp >> 6) & 3);
+		layPal = ((tmp & 0xc0) >> 6);
+		ui.tilePal->setValue(layPal);
 		for (int idx = 0; idx < 4096; idx++) {
 			file.getChar(&tmp);
 			tiles[idx].pal = (tmp >> 4) & 3;
 		}
 		file.close();
 	}
-
+	ui.tilePal->update();
 	ui.tiledit->update();
 }
