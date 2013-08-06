@@ -42,6 +42,7 @@ MWin::MWin(QWidget *p):QMainWindow(p) {
 	ui.paledit->colidx = 0;
 	ui.tilePalGrid->type = ML_TILEPAL;
 	ui.tiledit->type = ML_TILEDIT;
+	ui.viewLab->type = ML_VIEW;
 	ui.colwid->setEnabled(false);
 
 	bigview.type = ML_BIGVIEW;
@@ -224,6 +225,7 @@ void MWin::tilChange(int idx) {
 	ui.tileNum->setValue(idx);
 	ui.tilePal->setValue(tiles[idx].pal);
 	ui.tiledit->update();
+	ui.viewLab->update();
 }
 
 void MWin::pickTile() {
@@ -420,6 +422,8 @@ void MLabel::paintEvent(QPaintEvent*) {
 			drawEditBox(-66,194,tnum + 63,Qt::black,&pnt);
 			drawEditBox(64,194,tnum + 64,Qt::black,&pnt);
 			drawEditBox(194,194,tnum + 65,Qt::black,&pnt);
+
+			ui.viewLab->update();
 			break;
 		case ML_BIGVIEW:
 			pnt.fillRect(0,0,575,575,Qt::black);
@@ -448,7 +452,7 @@ void MLabel::paintEvent(QPaintEvent*) {
 			}
 			break;
 		case ML_TILEMAP:
-			int idx = (ypos << 6) + xpos;
+			idx = (ypos << 6) + xpos;
 			for (y = 0; y < 32; y++) {
 				for (x = 0; x < 32; x++) {
 					if (teui.l2box->isChecked()) {
@@ -458,6 +462,16 @@ void MLabel::paintEvent(QPaintEvent*) {
 						drawTile(x << 4, y << 4, tileMap[0][idx + (y << 6) + x],TILE_DBLSZ,&pnt);
 					}
 				}
+			}
+			break;
+		case ML_VIEW:
+			idx = ui.tileNum->value() - (3 * 64 + 3);
+			for (y = 0; y < 7; y++) {
+				for (x = 0; x < 7; x++) {
+					drawTile(x << 3, y << 3, idx, 0, &pnt);
+					idx++;
+				}
+				idx += (64 - 7);
 			}
 			break;
 	}

@@ -10,6 +10,7 @@
 #define	ML_TILEROW	5
 #define	ML_TILEMAP	6
 #define	ML_TILESHOW	7
+#define	ML_VIEW		8
 
 class MLabel : public QLabel {
 	Q_OBJECT
