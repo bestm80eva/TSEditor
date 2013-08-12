@@ -361,8 +361,8 @@ void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) 
 				pnt->setBrush(Qt::black);
 				pnt->drawRect(x,y,16,16);
 				pnt->setPen(Qt::darkGray);
-				pnt->drawLine(x,y,x+15,y+15);
-				pnt->drawLine(x+15,y,x,y+15);
+				pnt->drawLine(x+2,y+2,x+13,y+13);
+				pnt->drawLine(x+13,y+2,x+2,y+13);
 			}
 
 			idx++;
