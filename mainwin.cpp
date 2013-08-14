@@ -361,8 +361,7 @@ void MLabel::drawEditBox(int xst, int yst, int num, QColor bcol, QPainter* pnt) 
 				pnt->setBrush(Qt::black);
 				pnt->drawRect(x,y,16,16);
 				pnt->setPen(Qt::darkGray);
-				pnt->drawLine(x+2,y+2,x+13,y+13);
-				pnt->drawLine(x+13,y+2,x+2,y+13);
+				pnt->drawRect(x+6,y+6,4,4);
 			}
 
 			idx++;
@@ -409,19 +408,23 @@ void MLabel::paintEvent(QPaintEvent*) {
 		case ML_TILEDIT:
 			tnum = ui.tileNum->value();
 
+
 			pnt.fillRect(0,0,256,256,Qt::black);
+			pnt.setPen(Qt::darkGreen);
+			pnt.drawRect(63,63,130,130);
 
 			drawEditBox(-66,-66,tnum - 65,Qt::black,&pnt);
 			drawEditBox(64,-66,tnum - 64,Qt::black,&pnt);
 			drawEditBox(194,-66,tnum - 63,Qt::black,&pnt);
 
 			drawEditBox(-66,64,tnum - 1,Qt::black,&pnt);
-			drawEditBox(64,64,tnum,Qt::gray,&pnt);
+			drawEditBox(64,64,tnum,Qt::black,&pnt);
 			drawEditBox(194,64,tnum + 1,Qt::black,&pnt);
 
 			drawEditBox(-66,194,tnum + 63,Qt::black,&pnt);
 			drawEditBox(64,194,tnum + 64,Qt::black,&pnt);
 			drawEditBox(194,194,tnum + 65,Qt::black,&pnt);
+
 
 			ui.viewLab->update();
 			break;
